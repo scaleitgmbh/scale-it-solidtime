@@ -44,3 +44,9 @@ yarn-error.log
 /config/caddy
 /config/composer
 /AGENTS.md
+
+/docker/selfhost/laravel.env
+/docker/selfhost/logs/*
+!/docker/selfhost/logs/.gitkeep
+/docker/selfhost/app-storage/*
+!/docker/selfhost/app-storage/.gitkeep
