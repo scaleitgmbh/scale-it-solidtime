@@ -9,6 +9,9 @@ use App\Http\Controllers\Api\V1\CurrencyController;
 use App\Http\Controllers\Api\V1\ExportController;
 use App\Http\Controllers\Api\V1\ImportController;
 use App\Http\Controllers\Api\V1\InvitationController;
+use App\Http\Controllers\Api\V1\InvoiceController;
+use App\Http\Controllers\Api\V1\InvoiceRecipientController;
+use App\Http\Controllers\Api\V1\InvoiceSettingController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\OrganizationController;
 use App\Http\Controllers\Api\V1\ProjectController;
@@ -180,6 +183,34 @@ Route::prefix('v1')->name('v1.')->group(static function (): void {
         // Export routes
         Route::name('export.')->prefix('/organizations/{organization}')->group(static function (): void {
             Route::post('/export', [ExportController::class, 'export'])->name('export');
+        });
+
+        // Invoice settings routes
+        Route::name('invoice-settings.')->prefix('/organizations/{organization}')->group(static function (): void {
+            Route::get('/invoice-settings', [InvoiceSettingController::class, 'show'])->name('show');
+            Route::put('/invoice-settings', [InvoiceSettingController::class, 'update'])->name('update')->middleware('check-organization-blocked');
+        });
+
+        // Invoice recipient routes
+        Route::name('invoice-recipients.')->prefix('/organizations/{organization}')->group(static function (): void {
+            Route::get('/invoice-recipients', [InvoiceRecipientController::class, 'index'])->name('index');
+            Route::post('/invoice-recipients', [InvoiceRecipientController::class, 'store'])->name('store')->middleware('check-organization-blocked');
+            Route::get('/invoice-recipients/{invoiceRecipient}', [InvoiceRecipientController::class, 'show'])->name('show');
+            Route::put('/invoice-recipients/{invoiceRecipient}', [InvoiceRecipientController::class, 'update'])->name('update')->middleware('check-organization-blocked');
+            Route::post('/invoice-recipients/{invoiceRecipient}/duplicate', [InvoiceRecipientController::class, 'duplicate'])->name('duplicate')->middleware('check-organization-blocked');
+            Route::delete('/invoice-recipients/{invoiceRecipient}', [InvoiceRecipientController::class, 'destroy'])->name('destroy');
+        });
+
+        // Invoice routes
+        Route::name('invoices.')->prefix('/organizations/{organization}')->group(static function (): void {
+            Route::get('/invoices', [InvoiceController::class, 'index'])->name('index');
+            Route::post('/invoices', [InvoiceController::class, 'store'])->name('store')->middleware('check-organization-blocked');
+            Route::post('/invoices/generate-entries', [InvoiceController::class, 'generateEntries'])->name('generate-entries');
+            Route::post('/invoices/{invoice}/copy', [InvoiceController::class, 'copy'])->name('copy')->middleware('check-organization-blocked');
+            Route::get('/invoices/{invoice}', [InvoiceController::class, 'show'])->name('show');
+            Route::put('/invoices/{invoice}', [InvoiceController::class, 'update'])->name('update')->middleware('check-organization-blocked');
+            Route::delete('/invoices/{invoice}', [InvoiceController::class, 'destroy'])->name('destroy');
+            Route::post('/invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('download');
         });
 
     });

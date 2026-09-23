@@ -40,7 +40,6 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $hasBilling = Module::has('Billing') && Module::isEnabled('Billing');
-        $hasInvoicing = Module::has('Invoicing') && Module::isEnabled('Invoicing');
         $hasServices = Module::has('Services') && Module::isEnabled('Services');
 
         /** @var BillingContract $billing */
@@ -50,7 +49,6 @@ class HandleInertiaRequests extends Middleware
 
         return array_merge(parent::share($request), [
             'has_billing_extension' => $hasBilling,
-            'has_invoicing_extension' => $hasInvoicing,
             'has_services_extension' => $hasServices,
             'billing' => $currentOrganization !== null ? [
                 'has_subscription' => $billing->hasSubscription($currentOrganization),

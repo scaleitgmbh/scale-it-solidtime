@@ -37,7 +37,7 @@ import {
     canViewReport,
     canViewTags,
 } from '@/utils/permissions';
-import { isBillingActivated, isInvoicingActivated } from '@/utils/billing';
+import { isBillingActivated } from '@/utils/billing';
 import type { User } from '@/types/models';
 import { ArrowsRightLeftIcon } from '@heroicons/vue/16/solid';
 import { fetchToken, isTokenValid } from '@/utils/session';
@@ -250,13 +250,13 @@ const page = usePage<{
                                 :current="route().current('tags')"
                                 :href="route('tags')"></NavigationSidebarItem>
                             <NavigationSidebarItem
-                                v-if="isInvoicingActivated() && canViewInvoices()"
+                                v-if="canViewInvoices()"
                                 title="Invoices"
                                 :icon="DocumentTextIcon"
                                 :current="
                                     route().current('invoices') || route().current('invoices.*')
                                 "
-                                href="/invoices"></NavigationSidebarItem>
+                                :href="route('invoices')"></NavigationSidebarItem>
                         </ul>
                     </nav>
                     <div

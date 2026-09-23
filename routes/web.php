@@ -74,6 +74,22 @@ Route::middleware([
         return Inertia::render('Clients');
     })->name('clients');
 
+    Route::get('/invoice-recipients', function () {
+        return Inertia::render('InvoiceRecipients');
+    })->name('invoice-recipients');
+
+    Route::get('/invoices', function () {
+        return Inertia::render('Invoices');
+    })->name('invoices');
+
+    Route::get('/invoices/create', function () {
+        return Inertia::render('InvoiceCreate');
+    })->name('invoices.create');
+
+    Route::get('/invoices/{invoice}', function () {
+        return Inertia::render('InvoiceShow');
+    })->name('invoices.show');
+
     Route::get('/members', function () {
         return Inertia::render('Members', [
             'availableRoles' => collect(PermissionStore::roleDefinitions())

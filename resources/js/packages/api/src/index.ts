@@ -124,11 +124,29 @@ export type InvoiceRecipient = ZodiosResponseByAlias<
 >['data'][0];
 export type InvoiceRecipientBody = ZodiosBodyByAlias<SolidTimeApi, 'createInvoiceRecipient'>;
 
-export type UpdateInvoiceSettings = ZodiosBodyByAlias<SolidTimeApi, 'updateInvoiceSettings'>;
-
 export type CreateInvoiceBody = ZodiosBodyByAlias<SolidTimeApi, 'createInvoice'>;
 
 export type UpdateInvoiceBody = ZodiosBodyByAlias<SolidTimeApi, 'updateInvoice'>;
+
+export type InvoiceStatus = InvoiceIndexEntry['status'];
+
+export type InvoiceSettingsResponse = ZodiosResponseByAlias<SolidTimeApi, 'getInvoiceSettings'>;
+export type InvoiceSettings = InvoiceSettingsResponse['data'];
+export type UpdateInvoiceSettingsBody = ZodiosBodyByAlias<SolidTimeApi, 'updateInvoiceSettings'>;
+
+export type InvoiceRecipientUpdateBody = ZodiosBodyByAlias<SolidTimeApi, 'updateInvoiceRecipient'>;
+export type InvoiceRecipientDuplicateBody = ZodiosBodyByAlias<
+    SolidTimeApi,
+    'duplicateInvoiceRecipient'
+>;
+
+export type GenerateInvoiceEntriesBody = ZodiosBodyByAlias<SolidTimeApi, 'generateInvoiceEntries'>;
+export type GeneratedInvoiceEntry = ZodiosResponseByAlias<
+    SolidTimeApi,
+    'generateInvoiceEntries'
+>['data'][0];
+
+export type CopyInvoiceBody = ZodiosBodyByAlias<SolidTimeApi, 'copyInvoice'>;
 
 export type User = ZodiosResponseByAlias<SolidTimeApi, 'getMe'>['data'];
 export type UpdateUserBody = ZodiosBodyByAlias<SolidTimeApi, 'updateUser'>;

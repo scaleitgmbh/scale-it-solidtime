@@ -208,6 +208,8 @@ return [
     'client_name_already_exists' => 'A client with the same name already exists in the organization.',
     'task_name_already_exists' => 'A task with the same name already exists in the project.',
     'invitation_already_exists' => 'The email has already been invited to the organization. Please wait for the user to accept the invitation or resend the invitation email.',
+    'invoice_reference_already_exists' => 'An invoice with the same reference already exists in the organization.',
+    'invoice_field_locked' => 'This field can no longer be changed because the invoice is no longer a draft.',
 
     'entities' => [
         'organization' => 'organization',
@@ -219,5 +221,7 @@ return [
         'member' => 'member',
         'project_member' => 'project member',
         'tag' => 'tag',
+        'invoice' => 'invoice',
+        'invoice_recipient' => 'invoice recipient',
     ],
 ];

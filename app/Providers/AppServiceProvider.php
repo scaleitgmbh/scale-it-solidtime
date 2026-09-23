@@ -6,6 +6,10 @@ namespace App\Providers;
 
 use App\Models\Client;
 use App\Models\FailedJob;
+use App\Models\Invoice;
+use App\Models\InvoiceEntry;
+use App\Models\InvoiceRecipient;
+use App\Models\InvoiceSetting;
 use App\Models\Member;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
@@ -65,6 +69,10 @@ class AppServiceProvider extends ServiceProvider
         Relation::enforceMorphMap([
             'client' => Client::class,
             'failed-job' => FailedJob::class,
+            'invoice' => Invoice::class,
+            'invoice-entry' => InvoiceEntry::class,
+            'invoice-recipient' => InvoiceRecipient::class,
+            'invoice-setting' => InvoiceSetting::class,
             'membership' => Member::class,
             'organization' => Organization::class,
             'organization-invitation' => OrganizationInvitation::class,

@@ -129,6 +129,36 @@ export function canViewAllTimeEntries() {
 export function canViewInvoices() {
     return currentUserHasPermission('invoices:view');
 }
+export function canCreateInvoices() {
+    return currentUserHasPermission('invoices:create');
+}
+export function canUpdateInvoices() {
+    return currentUserHasPermission('invoices:update');
+}
+export function canDeleteInvoices() {
+    return currentUserHasPermission('invoices:delete');
+}
+export function canDownloadInvoices() {
+    return currentUserHasPermission('invoices:download');
+}
+export function canViewInvoiceRecipients() {
+    return currentUserHasPermission('invoice-recipients:view');
+}
+export function canCreateInvoiceRecipients() {
+    return currentUserHasPermission('invoice-recipients:create');
+}
+export function canUpdateInvoiceRecipients() {
+    return currentUserHasPermission('invoice-recipients:update');
+}
+export function canDeleteInvoiceRecipients() {
+    return currentUserHasPermission('invoice-recipients:delete');
+}
+export function canViewInvoiceSettings() {
+    return currentUserHasPermission('invoice-settings:view');
+}
+export function canUpdateInvoiceSettings() {
+    return currentUserHasPermission('invoice-settings:update');
+}
 export function canCreateReports() {
     return currentUserHasPermission('reports:create');
 }

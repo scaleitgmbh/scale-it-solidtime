@@ -19,7 +19,7 @@ import {
     canCreateTags,
     canCreateInvitations,
 } from '@/utils/permissions';
-import { isBillingActivated, isInvoicingActivated } from '@/utils/billing';
+import { isBillingActivated } from '@/utils/billing';
 import { useTimeEntriesInfiniteQuery } from '@/utils/useTimeEntriesInfiniteQuery';
 import { useProjectsQuery } from '@/utils/useProjectsQuery';
 import { useClientsQuery } from '@/utils/useClientsQuery';
@@ -263,7 +263,6 @@ export function useCommandPalette() {
                 canUpdateOrganization,
             },
             {
-                isInvoicingActivated,
                 isBillingActivated,
             },
             getCurrentTeamId

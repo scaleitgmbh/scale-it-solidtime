@@ -8,6 +8,9 @@ use App\Enums\Role;
 use App\Events\BeforeOrganizationDeletion;
 use App\Exceptions\Api\CanNotDeleteUserWhoIsOwnerOfOrganizationWithMultipleMembers;
 use App\Models\Client;
+use App\Models\Invoice;
+use App\Models\InvoiceRecipient;
+use App\Models\InvoiceSetting;
 use App\Models\Member;
 use App\Models\Organization;
 use App\Models\OrganizationInvitation;
@@ -68,6 +71,15 @@ class DeletionService
 
         // Delete all projects
         Project::query()->whereBelongsTo($organization, 'organization')->delete();
+
+        // Delete all invoices (cascades to invoice entries, frees claimed time entries)
+        Invoice::query()->whereBelongsTo($organization, 'organization')->delete();
+
+        // Delete all invoice recipients
+        InvoiceRecipient::query()->whereBelongsTo($organization, 'organization')->delete();
+
+        // Delete invoice settings
+        InvoiceSetting::query()->where('organization_id', '=', $organization->getKey())->delete();
 
         // Delete all clients
         Client::query()->whereBelongsTo($organization, 'organization')->delete();

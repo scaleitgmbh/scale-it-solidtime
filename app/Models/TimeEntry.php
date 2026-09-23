@@ -47,6 +47,8 @@ use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
  * @property-read Client|null $client
  * @property string|null $task_id
  * @property-read Task|null $task
+ * @property string|null $invoice_entry_id
+ * @property-read InvoiceEntry|null $invoiceEntry
  * @property-read Collection<int, Tag> $tagsRelation
  *
  * @method Builder<TimeEntry> hasTag(Tag $tag)
@@ -257,6 +259,14 @@ class TimeEntry extends Model implements AuditableContract
     public function client(): BelongsTo
     {
         return $this->belongsTo(Client::class, 'client_id');
+    }
+
+    /**
+     * @return BelongsTo<InvoiceEntry, $this>
+     */
+    public function invoiceEntry(): BelongsTo
+    {
+        return $this->belongsTo(InvoiceEntry::class, 'invoice_entry_id');
     }
 
     /**

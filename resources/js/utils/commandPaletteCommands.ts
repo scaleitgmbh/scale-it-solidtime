@@ -65,7 +65,6 @@ export function createNavigationCommands(
         canUpdateOrganization: () => boolean;
     },
     features: {
-        isInvoicingActivated: () => boolean;
         isBillingActivated: () => boolean;
     },
     currentTeamId: () => string
@@ -172,9 +171,8 @@ export function createNavigationCommands(
             icon: DocumentTextIcon,
             keywords: ['invoices', 'billing', 'payments'],
             group: 'navigation',
-            action: () => navigate('/invoices', {}),
+            action: () => navigate('invoices'),
             permission: permissions.canViewInvoices,
-            condition: features.isInvoicingActivated,
             priority: GROUP_PRIORITIES.navigation,
         },
         {
