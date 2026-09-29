@@ -8,6 +8,7 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use League\OAuth2\Server\Exception\OAuthServerException;
+use Sentry\Laravel\Integration;
 use Symfony\Component\HttpFoundation\Exception\SuspiciousOperationException;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
@@ -32,7 +33,7 @@ class Handler extends ExceptionHandler
     public function register(): void
     {
         $this->reportable(function (Throwable $e): void {
-            //
+            Integration::captureUnhandledException($e);
         });
 
         $this->dontReportWhen(fn (Throwable $e): bool => $e instanceof OAuthServerException
