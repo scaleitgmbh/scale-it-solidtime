@@ -337,6 +337,9 @@ class TimeEntryAggregationService
             $aggregatedTimeEntries['grouped_data'][$keyGroup1]['time_entry_descriptions'] = $group1Descriptions;
         }
 
+        // Only an additional key was added to the groups, so the structure is still the same
+        /** @var TData $aggregatedTimeEntries */
+
         return $aggregatedTimeEntries;
     }
 
