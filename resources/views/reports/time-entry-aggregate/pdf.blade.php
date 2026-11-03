@@ -251,6 +251,9 @@
                         {{ $subGroup->description() }}
                     </th>
                     <th>
+                        Description
+                    </th>
+                    <th>
                         Duration
                     </th>
                     <th>
@@ -280,6 +283,9 @@
                             @else
                                 {{ $group2Entry['description'] ?? $localization->formatTimeGroupKey($group2Entry['key'], $subGroup) ?? '-' }}
                             @endif
+                        </td>
+                        <td>
+                            {{ implode('; ', $group2Entry['time_entry_descriptions'] ?? []) }}
                         </td>
                         <td>
                             {{ $localization->formatIntervalForReporting($duration) }}

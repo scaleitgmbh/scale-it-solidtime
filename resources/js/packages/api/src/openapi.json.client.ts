@@ -4560,6 +4560,11 @@ If the group parameters are all set to &#x60;null&#x60; or are all missing, the 
                 schema: z.enum(['true', 'false']).optional(),
             },
             {
+                name: 'with_time_entry_descriptions',
+                type: 'Query',
+                schema: z.enum(['true', 'false']).optional(),
+            },
+            {
                 name: 'rounding_type',
                 type: 'Query',
                 schema: z.enum(['up', 'down', 'nearest']).optional(),
@@ -4612,6 +4617,7 @@ If the group parameters are all set to &#x60;null&#x60; or are all missing, the 
                                         key: z.union([z.string(), z.null()]),
                                         seconds: z.number().int(),
                                         cost: z.union([z.number(), z.null()]),
+                                        time_entry_descriptions: z.array(z.string()).optional(),
                                         grouped_type: z.union([z.string(), z.null()]),
                                         grouped_data: z.union([
                                             z.array(
@@ -4620,6 +4626,9 @@ If the group parameters are all set to &#x60;null&#x60; or are all missing, the 
                                                         key: z.union([z.string(), z.null()]),
                                                         seconds: z.number().int(),
                                                         cost: z.union([z.number(), z.null()]),
+                                                        time_entry_descriptions: z
+                                                            .array(z.string())
+                                                            .optional(),
                                                         grouped_type: z.null(),
                                                         grouped_data: z.null(),
                                                     })

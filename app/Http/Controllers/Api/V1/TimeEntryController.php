@@ -395,7 +395,7 @@ class TimeEntryController extends Controller
         $roundingMinutes = $canAccessPremiumFeatures ? $request->getRoundingMinutes() : null;
 
         $aggregatedData = $timeEntryAggregationService->getAggregatedTimeEntries(
-            $timeEntriesAggregateQuery,
+            $timeEntriesAggregateQuery->clone(),
             $group1Type,
             $group2Type,
             $user->timezone,
@@ -407,6 +407,16 @@ class TimeEntryController extends Controller
             $roundingType,
             $roundingMinutes
         );
+        if ($request->getWithTimeEntryDescriptions()) {
+            $aggregatedData = $timeEntryAggregationService->addTimeEntryDescriptions(
+                $aggregatedData,
+                $timeEntriesAggregateQuery,
+                $group1Type,
+                $group2Type,
+                $user->timezone,
+                $user->week_start
+            );
+        }
 
         return [
             'data' => $aggregatedData,
@@ -461,6 +471,14 @@ class TimeEntryController extends Controller
             $showBillableRate,
             $roundingType,
             $roundingMinutes
+        );
+        $aggregatedData = $timeEntryAggregationService->addTimeEntryDescriptions(
+            $aggregatedData,
+            $timeEntriesAggregateQuery->clone(),
+            $group,
+            $subGroup,
+            $user->timezone,
+            $user->week_start
         );
         $dataHistoryChart = $timeEntryAggregationService->getAggregatedTimeEntries(
             $timeEntriesAggregateQuery->clone(),

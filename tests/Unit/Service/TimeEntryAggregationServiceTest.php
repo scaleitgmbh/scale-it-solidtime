@@ -143,6 +143,71 @@ class TimeEntryAggregationServiceTest extends TestCaseWithDatabase
         ], $result);
     }
 
+    public function test_add_time_entry_descriptions_adds_distinct_non_empty_descriptions_per_group(): void
+    {
+        // Arrange
+        $project1 = Project::factory()->create([
+            // Note: To ensure deterministic order
+            'id' => '5de4e6df-9560-4675-95be-18d42c441bfc',
+        ]);
+        $project2 = Project::factory()->create([
+            // Note: To ensure deterministic order
+            'id' => '130bdf66-d370-4564-aec7-7171e9b415f7',
+        ]);
+        TimeEntry::factory()->startWithDuration(now(), 10)->forProject($project1)->create([
+            'description' => 'Meeting',
+            'billable' => true,
+        ]);
+        TimeEntry::factory()->startWithDuration(now(), 10)->forProject($project1)->create([
+            'description' => 'Meeting',
+            'billable' => true,
+        ]);
+        TimeEntry::factory()->startWithDuration(now(), 10)->forProject($project1)->create([
+            'description' => 'Bugfix',
+            'billable' => false,
+        ]);
+        TimeEntry::factory()->startWithDuration(now(), 10)->forProject($project2)->create([
+            'description' => '',
+            'billable' => true,
+        ]);
+        $query = TimeEntry::query();
+        $aggregated = $this->service->getAggregatedTimeEntries(
+            $query->clone(),
+            TimeEntryAggregationType::Project,
+            TimeEntryAggregationType::Billable,
+            'Europe/Vienna',
+            Weekday::Monday,
+            false,
+            null,
+            null,
+            true,
+            null,
+            null
+        );
+
+        // Act
+        $result = $this->service->addTimeEntryDescriptions(
+            $aggregated,
+            $query,
+            TimeEntryAggregationType::Project,
+            TimeEntryAggregationType::Billable,
+            'Europe/Vienna',
+            Weekday::Monday
+        );
+
+        // Assert
+        $this->assertNotNull($result['grouped_data']);
+        $this->assertSame($project2->getKey(), $result['grouped_data'][0]['key']);
+        $this->assertSame([], $result['grouped_data'][0]['time_entry_descriptions']);
+        $this->assertSame([], $result['grouped_data'][0]['grouped_data'][0]['time_entry_descriptions']);
+        $this->assertSame($project1->getKey(), $result['grouped_data'][1]['key']);
+        $this->assertSame(['Bugfix', 'Meeting'], $result['grouped_data'][1]['time_entry_descriptions']);
+        $this->assertSame('0', $result['grouped_data'][1]['grouped_data'][0]['key']);
+        $this->assertSame(['Bugfix'], $result['grouped_data'][1]['grouped_data'][0]['time_entry_descriptions']);
+        $this->assertSame('1', $result['grouped_data'][1]['grouped_data'][1]['key']);
+        $this->assertSame(['Meeting'], $result['grouped_data'][1]['grouped_data'][1]['time_entry_descriptions']);
+    }
+
     public function test_aggregate_time_entries_without_billable_amounts(): void
     {
         // Arrange

@@ -179,6 +179,11 @@ class TimeEntryAggregateRequest extends BaseFormRequest
                 'string',
                 'in:true,false',
             ],
+            // Add the distinct descriptions of the time entries of every group as `time_entry_descriptions`
+            'with_time_entry_descriptions' => [
+                'string',
+                'in:true,false',
+            ],
             // Rounding type defined where the end of each time entry should be rounded to. For example: nearest rounds the end to the nearest x minutes group. Rounding per time entry is activated if `rounding_type` and `rounding_minutes` is not null.
             'rounding_type' => [
                 'nullable',
@@ -207,6 +212,11 @@ class TimeEntryAggregateRequest extends BaseFormRequest
     public function getFillGapsInTimeGroups(): bool
     {
         return $this->has('fill_gaps_in_time_groups') && $this->input('fill_gaps_in_time_groups') === 'true';
+    }
+
+    public function getWithTimeEntryDescriptions(): bool
+    {
+        return $this->input('with_time_entry_descriptions') === 'true';
     }
 
     public function getStart(): ?Carbon

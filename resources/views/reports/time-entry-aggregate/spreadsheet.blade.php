@@ -15,6 +15,9 @@
             {{ $subGroup->description() }}
         </th>
         <th style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_STRING }}">
+            Description
+        </th>
+        <th style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_STRING }}">
             Duration
         </th>
         <th style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_STRING }}">
@@ -57,6 +60,9 @@
                         </td>
                     @endif
                     <td style="border: 1px solid black;" data-type="{{ DataType::TYPE_STRING }}">
+                        {{ implode('; ', $group2Entry['time_entry_descriptions'] ?? []) }}
+                    </td>
+                    <td style="border: 1px solid black;" data-type="{{ DataType::TYPE_STRING }}">
                         {{ $interval->format($duration) }}
                     </td>
                     <td style="border: 1px solid black;" data-type="{{ DataType::TYPE_STRING }}">
@@ -86,6 +92,9 @@
                             {{ $group2Entry['description'] ?? $localization->formatTimeGroupKey($group2Entry['key'], $subGroup) ?? '-' }}
                         </td>
                     @endif
+                    <td style="border: 1px solid black;" data-type="{{ DataType::TYPE_STRING }}">
+                        {{ implode('; ', $group2Entry['time_entry_descriptions'] ?? []) }}
+                    </td>
                     <td style="border: 1px solid black;" data-type="{{ DataType::TYPE_NUMERIC }}"
                         data-format="[hh]:mm:ss">
                         {{ $duration->totalDays }}
@@ -119,6 +128,7 @@
         <td style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_STRING }}">
             Total
         </td>
+        <td style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_STRING }}"></td>
         @if($exportFormat === ExportFormat::ODS || $exportFormat === ExportFormat::CSV)
             <td style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_STRING }}">
                 {{ $interval->format($totalDurationInterval) }}
@@ -135,7 +145,7 @@
             <td style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_FORMULA }}"
                 data-format="[hh]:mm:ss">
                 @if($counter > 1)
-                    =SUM(C2:C{{ $counter }})
+                    =SUM(D2:D{{ $counter }})
                 @else
                     =0
                 @endif
@@ -143,7 +153,7 @@
             <td style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_FORMULA }}"
                 data-format="{{ NumberFormat::FORMAT_NUMBER_00 }}">
                 @if($counter > 1)
-                    =SUM(D2:D{{ $counter }})
+                    =SUM(E2:E{{ $counter }})
                 @else
                     =0
                 @endif
@@ -151,7 +161,7 @@
             <td style="border: 1px solid black; font-weight: bold;" data-type="{{ DataType::TYPE_FORMULA }}"
                 data-format="{{ NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1 }}">
                 @if($counter > 1)
-                    =SUM(E2:E{{ $counter }})
+                    =SUM(F2:F{{ $counter }})
                 @else
                     =0
                 @endif

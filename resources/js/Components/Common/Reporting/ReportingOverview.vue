@@ -147,6 +147,7 @@ const tableQueryParams = computed<AggregatedTimeEntriesQueryParams>(() => {
         ...filterParams.value,
         group: group.value,
         sub_group: subGroup.value,
+        with_time_entry_descriptions: 'true',
     };
 });
 
@@ -269,6 +270,7 @@ const tableData = computed(() => {
             key: entry.key,
             seconds: entry.seconds,
             cost: entry.cost,
+            time_entry_descriptions: entry.time_entry_descriptions ?? [],
             description: getNameForReportingRowEntry(
                 entry.key,
                 aggregatedTableTimeEntries.value?.grouped_type ?? null,
@@ -280,6 +282,7 @@ const tableData = computed(() => {
                         key: el.key,
                         seconds: el.seconds,
                         cost: el.cost,
+                        time_entry_descriptions: el.time_entry_descriptions ?? [],
                         description: getNameForReportingRowEntry(
                             el.key,
                             entry.grouped_type,
@@ -409,10 +412,11 @@ const tableData = computed(() => {
                 </div>
                 <div
                     class="grid items-center"
-                    :style="`grid-template-columns: 1fr 100px ${showBillableRate ? '150px' : ''}`">
+                    :style="`grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr) 100px ${showBillableRate ? '150px' : ''}`">
                     <div
                         class="contents [&>*]:border-card-background-separator [&>*]:border-b [&>*]:bg-secondary [&>*]:pb-1.5 [&>*]:pt-1 text-text-tertiary text-sm">
                         <div class="pl-6">Name</div>
+                        <div class="pl-3">Description</div>
                         <div class="text-right" :class="!showBillableRate ? 'pr-6' : ''">
                             Duration
                         </div>
@@ -428,11 +432,13 @@ const tableData = computed(() => {
                             :key="entry.key ?? 'none'"
                             :currency="getOrganizationCurrencyString()"
                             :show-cost="showBillableRate"
+                            show-time-entry-descriptions
                             :entry="entry"></ReportingRow>
                         <div class="contents [&>*]:transition text-text-tertiary [&>*]:h-[50px]">
                             <div class="flex items-center pl-6 font-medium">
                                 <span>Total</span>
                             </div>
+                            <div></div>
                             <div
                                 class="justify-end flex items-center font-medium"
                                 :class="!showBillableRate ? 'pr-6' : ''">
@@ -464,7 +470,7 @@ const tableData = computed(() => {
                     <div
                         v-else
                         class="chart flex flex-col items-center justify-center py-12"
-                        :class="showBillableRate ? 'col-span-3' : 'col-span-2'">
+                        :class="showBillableRate ? 'col-span-4' : 'col-span-3'">
                         <p class="text-lg text-text-primary font-medium">No time entries found</p>
                         <p>Try to change the filters and time range</p>
                     </div>

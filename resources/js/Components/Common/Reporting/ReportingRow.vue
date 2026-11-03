@@ -2,7 +2,7 @@
 import { formatReportingDuration } from '@/packages/ui/src/utils/time';
 import { formatCents } from '@/packages/ui/src/utils/money';
 import GroupedItemsCountButton from '@/packages/ui/src/GroupedItemsCountButton.vue';
-import { ref, inject, type ComputedRef } from 'vue';
+import { ref, inject, computed, type ComputedRef } from 'vue';
 import { twMerge } from 'tailwind-merge';
 import type { Organization } from '@/packages/api/src';
 
@@ -15,6 +15,7 @@ type GroupedData = {
     seconds: number;
     cost: number | null;
     description: string | null | undefined;
+    time_entry_descriptions?: string[];
 };
 
 const props = defineProps<{
@@ -22,16 +23,28 @@ const props = defineProps<{
     indent?: boolean;
     currency: string;
     showCost?: boolean;
+    showTimeEntryDescriptions?: boolean;
 }>();
 
 const expanded = ref(false);
+
+const columnCount = computed(
+    () => 2 + (props.showCost ? 1 : 0) + (props.showTimeEntryDescriptions ? 1 : 0)
+);
+
+const subGridTemplateColumns = computed(() => {
+    if (props.showTimeEntryDescriptions) {
+        return `minmax(0, 1fr) minmax(0, 1.5fr) 100px ${props.showCost ? '150px' : ''}`;
+    }
+    return `1fr 150px ${props.showCost ? '150px' : ''}`;
+});
 
 const organization = inject<ComputedRef<Organization>>('organization');
 </script>
 
 <template>
     <div
-        class="contents text-text-primary [&>*]:transition [&>*]:border-card-background-separator [&>*]:border-b [&>*]:h-[50px]">
+        class="contents text-text-primary [&>*]:transition [&>*]:border-card-background-separator [&>*]:border-b [&>*]:min-h-[50px]">
         <div :class="twMerge('pl-6 flex items-center space-x-3', props.indent ? 'pl-16' : '')">
             <GroupedItemsCountButton
                 v-if="entry.grouped_data && entry.grouped_data?.length > 0"
@@ -41,6 +54,14 @@ const organization = inject<ComputedRef<Organization>>('organization');
             </GroupedItemsCountButton>
             <span>
                 {{ entry.description }}
+            </span>
+        </div>
+        <div
+            v-if="showTimeEntryDescriptions"
+            class="pl-3 pr-3 py-2 flex items-center text-sm text-text-secondary"
+            :title="entry.time_entry_descriptions?.join('\n')">
+            <span class="line-clamp-2 break-words">
+                {{ entry.time_entry_descriptions?.join('; ') || '--' }}
             </span>
         </div>
         <div class="justify-end flex items-center" :class="!showCost ? 'pr-6' : ''">
@@ -68,14 +89,14 @@ const organization = inject<ComputedRef<Organization>>('organization');
     </div>
     <div
         v-if="expanded && entry.grouped_data"
-        :class="showCost ? 'col-span-3' : 'col-span-2'"
         class="grid bg-tertiary"
-        :style="`grid-template-columns: 1fr 150px ${showCost ? '150px' : ''}`">
+        :style="`grid-column: span ${columnCount} / span ${columnCount}; grid-template-columns: ${subGridTemplateColumns}`">
         <ReportingRow
             v-for="subEntry in entry.grouped_data"
             :key="subEntry.key ?? 'none'"
             :currency="props.currency"
             :show-cost="showCost"
+            :show-time-entry-descriptions="showTimeEntryDescriptions"
             indent
             :entry="subEntry"></ReportingRow>
     </div>

@@ -54,13 +54,7 @@ class TimeEntryAggregationService
         $groupBy = null;
         // If any grouping is by tag, expand rows per tag and ensure a NULL row for entries without tags
         if (($group1Type === TimeEntryAggregationType::Tag) || ($group2Type === TimeEntryAggregationType::Tag)) {
-            $timeEntriesQuery->crossJoin(DB::raw(
-                "LATERAL (\n".
-                "  SELECT jsonb_array_elements_text(coalesce(tags, '[]'::jsonb)) AS tag\n".
-                "  UNION ALL\n".
-                "  SELECT ''::text AS tag WHERE coalesce(jsonb_array_length(tags), 0) = 0\n".
-                ') AS tag(tag)'
-            ));
+            $this->expandRowsPerTag($timeEntriesQuery);
         }
         if ($group1Type !== null) {
             $group1Select = $this->getGroupByQuery($group1Type, $timezone, $startOfWeek);
@@ -286,6 +280,67 @@ class TimeEntryAggregationService
     }
 
     /**
+     * Adds the distinct (non-empty) time entry descriptions of every group as "time_entry_descriptions".
+     * The query has to be the same (unmodified) query that was used to aggregate the data.
+     *
+     * @template TData of array{grouped_data: null|array<array<string, mixed>>}
+     *
+     * @param  TData  $aggregatedTimeEntries
+     * @param  Builder<TimeEntry>  $timeEntriesQuery
+     * @return TData
+     */
+    public function addTimeEntryDescriptions(array $aggregatedTimeEntries, Builder $timeEntriesQuery, ?TimeEntryAggregationType $group1Type, ?TimeEntryAggregationType $group2Type, string $timezone, Weekday $startOfWeek): array
+    {
+        if ($group1Type === null || $aggregatedTimeEntries['grouped_data'] === null) {
+            return $aggregatedTimeEntries;
+        }
+
+        if (($group1Type === TimeEntryAggregationType::Tag) || ($group2Type === TimeEntryAggregationType::Tag)) {
+            $this->expandRowsPerTag($timeEntriesQuery);
+        }
+        $groupBy = ['group_1'];
+        $select = $this->getGroupByQuery($group1Type, $timezone, $startOfWeek).' as group_1,';
+        if ($group2Type !== null) {
+            $groupBy[] = 'group_2';
+            $select .= $this->getGroupByQuery($group2Type, $timezone, $startOfWeek).' as group_2,';
+        }
+        $select .= " coalesce(json_agg(distinct description order by description) filter (where description <> ''), '[]'::json) as time_entry_descriptions";
+
+        // Group the result the same way as in getAggregatedTimeEntries, so that the keys match
+        $descriptionRows = $timeEntriesQuery->selectRaw($select)->groupBy($groupBy)->get()->groupBy($groupBy);
+
+        $decode = function (mixed $row): array {
+            /** @var object{time_entry_descriptions: string} $row */
+            /** @var array<int, string> $descriptions */
+            $descriptions = json_decode($row->time_entry_descriptions, true, 512, JSON_THROW_ON_ERROR);
+
+            return $descriptions;
+        };
+
+        foreach ($aggregatedTimeEntries['grouped_data'] as $keyGroup1 => $group1) {
+            /** @var Collection<int|string, mixed>|null $group1Rows */
+            $group1Rows = $descriptionRows->get($group1['key'] ?? '');
+            $group1Descriptions = [];
+            if ($group2Type !== null && ($group1['grouped_data'] ?? null) !== null) {
+                foreach ($group1['grouped_data'] as $keyGroup2 => $group2) {
+                    /** @var Collection<int, object>|null $group2Rows */
+                    $group2Rows = $group1Rows?->get($group2['key'] ?? '');
+                    $group2Descriptions = $group2Rows !== null ? $decode($group2Rows->first()) : [];
+                    $aggregatedTimeEntries['grouped_data'][$keyGroup1]['grouped_data'][$keyGroup2]['time_entry_descriptions'] = $group2Descriptions;
+                    $group1Descriptions = array_merge($group1Descriptions, $group2Descriptions);
+                }
+                $group1Descriptions = array_values(array_unique($group1Descriptions));
+                sort($group1Descriptions);
+            } elseif ($group1Rows !== null) {
+                $group1Descriptions = $decode($group1Rows->first());
+            }
+            $aggregatedTimeEntries['grouped_data'][$keyGroup1]['time_entry_descriptions'] = $group1Descriptions;
+        }
+
+        return $aggregatedTimeEntries;
+    }
+
+    /**
      * @param  array<int, string>  $keys
      * @return array<string, array{
      *     description: string,
@@ -480,6 +535,22 @@ class TimeEntryAggregationService
 
             return $filledData;
         }
+    }
+
+    /**
+     * Expand rows per tag and ensure a NULL row for entries without tags
+     *
+     * @param  Builder<TimeEntry>  $timeEntriesQuery
+     */
+    private function expandRowsPerTag(Builder $timeEntriesQuery): void
+    {
+        $timeEntriesQuery->crossJoin(DB::raw(
+            "LATERAL (\n".
+            "  SELECT jsonb_array_elements_text(coalesce(tags, '[]'::jsonb)) AS tag\n".
+            "  UNION ALL\n".
+            "  SELECT ''::text AS tag WHERE coalesce(jsonb_array_length(tags), 0) = 0\n".
+            ') AS tag(tag)'
+        ));
     }
 
     private function getGroupByQuery(TimeEntryAggregationType $group, string $timezone, Weekday $startOfWeek): string
