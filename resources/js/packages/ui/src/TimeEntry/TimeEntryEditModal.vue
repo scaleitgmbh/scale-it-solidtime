@@ -5,7 +5,6 @@ import DialogModal from '@/packages/ui/src/DialogModal.vue';
 import { computed, nextTick, ref, watch } from 'vue';
 import PrimaryButton from '@/packages/ui/src/Buttons/PrimaryButton.vue';
 import TimeTrackerProjectTaskDropdown from '@/packages/ui/src/TimeTracker/TimeTrackerProjectTaskDropdown.vue';
-import { Field, FieldLabel } from '../field';
 import { TagIcon } from '@heroicons/vue/20/solid';
 import { getLocalizedDayJs } from '@/packages/ui/src/utils/time';
 import type {
@@ -19,13 +18,10 @@ import TagDropdown from '@/packages/ui/src/Tag/TagDropdown.vue';
 import BillableIcon from '@/packages/ui/src/Icons/BillableIcon.vue';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '..';
 import { Button } from '@/packages/ui/src/Buttons';
-import DatePicker from '@/packages/ui/src/Input/DatePicker.vue';
-import DurationHumanInput from '@/packages/ui/src/Input/DurationHumanInput.vue';
+import TimeRangeFields from '@/packages/ui/src/TimeEntry/TimeRangeFields.vue';
 
-import { InformationCircleIcon } from '@heroicons/vue/20/solid';
 import { Coffee } from '@lucide/vue';
 import type { Tag, Task } from '@/packages/api/src';
-import TimePickerSimple from '@/packages/ui/src/Input/TimePickerSimple.vue';
 import { useBreaksEnabled } from '@/packages/ui/src/utils/useBreaksEnabled';
 
 // Breaks may have been disabled after this entry was created, so an existing break can still be
@@ -92,10 +88,8 @@ const localStart = computed({
         editableTimeEntry.value ? getLocalizedDayJs(editableTimeEntry.value.start).format() : '',
     set: (value: string) => {
         if (editableTimeEntry.value) {
+            // Keeping end after start (preserving duration) is handled by TimeRangeFields.
             editableTimeEntry.value.start = getLocalizedDayJs(value).utc().format();
-            if (getLocalizedDayJs(localEnd.value).isBefore(getLocalizedDayJs(value))) {
-                localEnd.value = value;
-            }
         }
     },
 });
@@ -251,44 +245,11 @@ const typeProxy = computed({
                         </Select>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 pt-4">
-                    <Field class="col-span-2 sm:col-span-3">
-                        <FieldLabel>Duration</FieldLabel>
-                        <div class="space-y-2 flex flex-col">
-                            <DurationHumanInput
-                                v-model:start="localStart"
-                                v-model:end="localEnd"
-                                name="Duration"></DurationHumanInput>
-                            <div class="text-sm flex space-x-1">
-                                <InformationCircleIcon
-                                    class="w-4 shrink-0 text-text-quaternary"></InformationCircleIcon>
-                                <span class="text-text-secondary text-xs">
-                                    You can type natural language like
-                                    <span class="font-semibold"> 2h 30m</span>
-                                </span>
-                            </div>
-                        </div>
-                    </Field>
-                    <Field>
-                        <FieldLabel>Start</FieldLabel>
-                        <div class="flex flex-col gap-2">
-                            <TimePickerSimple
-                                v-model="localStart"
-                                class="w-full"></TimePickerSimple>
-                            <DatePicker
-                                v-model="localStart"
-                                class="w-full"
-                                tabindex="1"></DatePicker>
-                        </div>
-                    </Field>
-                    <Field>
-                        <FieldLabel>End</FieldLabel>
-                        <div class="flex flex-col gap-2">
-                            <TimePickerSimple v-model="localEnd" class="w-full"></TimePickerSimple>
-                            <DatePicker v-model="localEnd" class="w-full" tabindex="1"></DatePicker>
-                        </div>
-                    </Field>
-                </div>
+                <TimeRangeFields
+                    v-model:start="localStart"
+                    v-model:end="localEnd"
+                    show-hint
+                    class="pt-4"></TimeRangeFields>
             </div>
         </template>
         <template #footer>

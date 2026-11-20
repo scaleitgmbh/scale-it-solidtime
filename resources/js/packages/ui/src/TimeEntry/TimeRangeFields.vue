@@ -26,6 +26,23 @@ watch(start, (value, oldValue) => {
     );
     end.value = getLocalizedDayJs(value).add(previousDuration, 'second').format();
 });
+
+// Picking a new start date moves the whole range: the start keeps its time of day
+// (DatePicker only swaps the date) and the end follows by the same duration. This
+// also keeps entries that cross midnight intact.
+function onStartDateChange(value: string | null) {
+    if (!value) return;
+    const currentStart = getLocalizedDayJs(start.value);
+    const currentEnd = getLocalizedDayJs(end.value);
+    const duration =
+        currentStart.isValid() && currentEnd.isValid()
+            ? currentEnd.diff(currentStart, 'second')
+            : null;
+    start.value = value;
+    if (duration !== null && duration >= 0) {
+        end.value = getLocalizedDayJs(value).add(duration, 'second').format();
+    }
+}
 </script>
 
 <template>
@@ -52,10 +69,11 @@ watch(start, (value, oldValue) => {
             <div class="flex flex-col gap-2">
                 <TimePickerSimple v-model="start" class="w-full"></TimePickerSimple>
                 <DatePicker
-                    v-model="start"
+                    :model-value="start"
                     :size="datePickerSize"
                     class="w-full"
-                    tabindex="1"></DatePicker>
+                    tabindex="1"
+                    @update:model-value="onStartDateChange"></DatePicker>
             </div>
         </Field>
         <Field>
